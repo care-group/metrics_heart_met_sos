@@ -1,0 +1,231 @@
+version: "2.0"
+
+nlu:
+
+# out of scope
+
+- intent: out_of_scope
+  examples: |
+    - you are stupid
+    - i hate robots
+    - why don't i just watch tv?
+    - order me a takeaway
+    - please don't clean the air
+    - am i going to the bahamas
+    - can we watch monsters inc?
+    - who is the us president?
+    - what is 2 + 2?
+    - fuck off
+    - eat my shorts
+    - just leave me alone
+
+# reset
+
+- intent: intent_reset
+  examples: |
+    - reset
+    - please reset
+    - lets start again
+
+# accept / wait / reject
+
+- intent: intent_accept
+  examples: |
+    - yes
+    - yes please
+    - please do
+    - yeah
+    - yeah go ahead
+    - that would be good
+    - i would appreciate it
+    - yeah please
+    - yeah thanks
+    - yes thanks
+    - that sounds good
+    - that would be great
+    - id like that
+
+- intent: intent_wait
+  examples: |
+    - not yet
+    - wait a moment
+    - can you wait a minute
+    - i'm not ready yet
+    - hold on a second
+    - hold on a moment
+    - wait just a second
+    - not yet i'm not
+    - wait a minute
+    - oh don't do that yet
+    - hold your horses
+
+- intent: intent_reject
+  examples: |
+    - no
+    - no thanks
+    - no thank you
+    - please don't
+    - don't do that
+    - i'd rather you didn't
+    - thanks but please don't
+    - uh no
+    - that sounds bad
+
+# items
+- intent: intent_item
+  examples: |
+    - [windex bottle](item)
+    - [spatula](item)
+    - [pringles can](item)
+    - [t-shirt](item)
+    - [soup can](item)
+    - [softball](item)
+    - [tennis ball](item)
+    - [spam can](item)
+    - [plastic jug](item)
+    - [white rope](item)
+  
+- synonym: windex bottle
+  examples: |
+    - windex
+    - the windex bottle
+    - the spray
+    - spray
+    - that spray bottle
+    - the glass cleaner
+    - the cleaner
+
+- synonym: spatula
+  examples: |
+    - bspatula
+    - the spatula
+    - that spatula
+
+- synonym: pringles can
+  examples: |
+    - pringles
+    - the pringles
+    - the pringles can
+    - the chips
+    - chips
+    - the crisps
+    - crisps
+
+- synonym: t-shirt
+  examples: |
+    - t-shirt
+    - the t-shirt
+    - that t-shirt
+    - the shirt
+    - shirt
+    - that shirt
+
+- synonym: soup can
+  examples: |
+    - soup
+    - some soup
+    - the soup can
+    - can of soup
+    - the can of soup
+    - Campbell soup
+    - the can of campbell soup
+    - that campbell soup can
+
+- synonym: softball
+  examples: |
+    - the softball
+    - softball
+    - the big ball
+
+- synonym: tennis ball
+  examples: |
+    - the tennis ball
+    - tennis ball
+    - the small ball
+
+- synonym: spam can
+  examples: |
+    - the spam can
+    - spam
+    - the spam
+    - the can of spam
+    - that spam can
+    - that can of spam
+
+- synonym: plastic jug
+  examples: |
+    - the plastic jug
+    - jug
+    - the jug
+    - that jug
+    - the plastic jug
+    - that plastic jug
+
+- synonym: white rope
+  examples: |
+    - the white rope
+    - white rope
+    - the white rope
+    - that white rope
+    - the white rope
+    - that white rope
+
+# locations
+
+- intent: intent_location
+  examples: |
+    - [lounge](location)
+    - [bedroom](location)
+    - [kitchen](location)
+    - [bathroom](location)
+    - [table](location)
+    - [countertop](location)
+    - [chair](location)
+
+- synonym: lounge
+  examples: |
+    - living room
+    - main room
+    - lounge area
+    - living area
+    - front room
+
+- synonym: bedroom
+  examples: |
+    - bedroom
+    - the bedroom
+    - the room
+    - room
+    - back room
+
+- synonym: kitchen
+  examples: |
+    - kitchen
+    - the kitchen
+
+- synonym: bathroom
+  examples: |
+    - bathroom
+    - the bathroom
+    - toilet
+    - the toilet
+    - washroom
+    - the washroom
+
+- synonym: table
+  examples: |
+    - table
+    - the table
+    - that table
+
+- synonym: countertop
+  examples: |
+    - countertop
+    - the countertop
+    - that countertop
+
+- synonym: chair
+  examples: |
+    - chair
+    - the chair
+    - that chair

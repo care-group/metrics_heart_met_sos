@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<launch>
+
+<node pkg="metrics_rasa" type="rasa_server.sh" name="rasa_server"/>
+
+<node pkg="metrics_rasa" type="rasa_actions.sh" name="rasa_actions"/>
+
+<node pkg="metrics_rasa" type="main.py" name="rasa_io" output="screen"/>
+
+</launch>
