@@ -68,6 +68,7 @@ class Main():
         self.logger.log_great('Ready.')
         self.speak.request('Controller is ready.')
 
+        # loop
         while not rospy.is_shutdown():
             self.loop()
 
