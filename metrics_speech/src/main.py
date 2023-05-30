@@ -56,8 +56,8 @@ class Main():
         # self.mic = Tuning(self.device)
 
         self.r = sr.Recognizer()
-        self.r.dynamic_energy_threshold = True
-        # self.r.energy_threshold = 4000
+        self.r.dynamic_energy_threshold = False
+        self.r.energy_threshold = 2000
         # self.r.dynamic_energy_adjustment_ratio = 1.1
         self.audio_queue = Queue()
 
@@ -90,17 +90,17 @@ class Main():
         recognize_thread.start()
         with sr.Microphone() as source:
             # self.logger.log('Adjusting for ambient noise...')
-            # self.r.adjust_for_ambient_noise(source, duration=10)
+            # self.r.adjust_for_ambient_noise(source, duration=5)
             # self.logger.log('Adjusting for ambient noise... [OK]')
             try:
                 while True and not rospy.is_shutdown():
-                    self.logger.log('Adjusting for ambient noise...')
-                    self.r.adjust_for_ambient_noise(source)
-                    self.logger.log('Adjusting for ambient noise... [OK]')
+                    # self.logger.log('Adjusting for ambient noise...')
+                    # self.r.adjust_for_ambient_noise(source)
+                    # self.logger.log('Adjusting for ambient noise... [OK]')
                     self.logger.log('Listening...')
                     timed_out = False
                     try:
-                        audio = self.r.listen(source, timeout=1)
+                        audio = self.r.listen(source, timeout=1, phrase_time_limit=10)
                     except sr.WaitTimeoutError:
                         timed_out = True
                     if not timed_out:
@@ -125,7 +125,11 @@ class Main():
                 break
 
             # utterance = self.r.recognize_whisper(audio, language='English', model='base')
-            utterance = self.r.recognize_google_cloud(audio, language='en-GB')
+            utterance = ''
+            try:
+                utterance = self.r.recognize_google_cloud(audio, language='en-GB')
+            except sr.UnknownValueError:
+                self.logger.log_warn('No results from Google Cloud STT.')
             log = 'Utterance:' + utterance
             self.logger.log(log)
             words = utterance.split()
