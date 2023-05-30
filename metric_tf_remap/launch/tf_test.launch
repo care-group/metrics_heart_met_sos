@@ -1,0 +1,24 @@
+<launch>
+
+    <!--TO WORLD-->
+    <!--When taking dimesions from inventor x y z = z x y-->
+    <!-- x y z yaw (z) pitch(y) roll(x)-->
+    <!-- Static transform broadcaster from world to base_link-->
+    <node pkg="tf2_ros" type="static_transform_publisher" name="map_base_link_broadcaster" args=" 0 0 0.5 0 0 0 map base_link" />
+    <!--Everything from here should now be from the base link up-->
+    
+    <!--TO CAMERA-->
+    <!--Static transform broadcaster from base_link to prophesee_camera_link (The Camera Screw Point)-->
+    <node pkg="tf2_ros" type="static_transform_publisher" name="base_link_prophesee_camera_link_broadcaster" args=" 0.049945 -0.01010 0.095 0 0 0 base_link PropheseeCamera_mount_link" />
+
+    <!--TO LASER-->
+    <!--Static transform broadcaster from base_link to galvomirror_base_link (The Galvomirror Screw Point)-->
+    <node pkg="tf2_ros" type="static_transform_publisher" name="base_link_galvomirror_base_link_broadcaster" args="0.087 -0.023 0.015 0 0 0 base_link galvomirror_mount_link" />
+
+    <!--Static transform broadcaster from galvomirror_mirror_link to galvomirror_mirror_link (The Galvomirror Mirror rotation axis, in the centre of the mirror Point)-->
+    <node pkg="tf2_ros" type="static_transform_publisher" name="galvomirror_base_link_galvomirror_mirror_link_broadcaster" args="0.007945 0.0127 0.031995 0 0 0 galvomirror_mount_link galvomirror_mirror_frame" />
+
+    <!--TO KINECT-->
+    <node pkg="tf2_ros" type="static_transform_publisher" name="base_link_kinect_base_link_broadcaster" args="0.1 0 -0.05 0 0 0 base_link kinect_mount_link" />
+
+</launch>
