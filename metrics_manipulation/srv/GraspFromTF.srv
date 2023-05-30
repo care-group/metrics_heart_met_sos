@@ -1,3 +1,5 @@
 string tf_frame
+bool rotation
+bool translation
 ---
 bool sucess

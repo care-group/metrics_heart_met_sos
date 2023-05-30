@@ -1,14 +1,12 @@
 #!/usr/bin/env python
 import rospy
 import hsrb_interface
-import gazebo_msgs.srv
 import geometry_msgs.msg
-import std_srvs.srv
 import tf2_ros
 import tf_conversions
 from hsrb_interface import geometry
 import tmc_interactive_grasp_planner.srv
-from hsr_tools.srv import GraspFromTF, GraspFromTFResponse
+from metrics_manipulation.srv import GraspFromTF, GraspFromTFResponse
 import numpy as np
 
 
@@ -22,8 +20,6 @@ class GraspFromTFSrv():
         self.whole_body = whole_body
 
         # ROS service proxies
-        self.gazebo_spawn_model = rospy.ServiceProxy("/gazebo/spawn_sdf_model", gazebo_msgs.srv.SpawnModel)
-        self.gazebo_delete_model = rospy.ServiceProxy("/gazebo/delete_model", gazebo_msgs.srv.DeleteModel)
         self.get_grasp_pattern = rospy.ServiceProxy("/get_grasp_pattern", tmc_interactive_grasp_planner.srv.GetGraspPattern)
         
         #tf2 i/o
@@ -39,6 +35,7 @@ class GraspFromTFSrv():
         self.goal_frame = 'odom'
         self.robot_frame = 'base_link'
         print("Service Ready")
+
         self.OPENGRIP = 1.2
         self.GRIPFORCE = 1
     
@@ -207,37 +204,25 @@ class GraspFromTFSrv():
         self.omni_base.go_pose(movement_pose, ref_frame_id=object_tf)
 
     #TODO tidy this chunk of code up
-    def allignObject(self, object_tf, reference_tf):
-        self.rotationAllign(object_tf, reference_tf)
-        self.axisAllign(object_tf)
-
-
-    # method to reset the simulation for another go around
-    def resetSim(self):
-        print("Resetting")
-        # home the robot and open the gripper
-        self.omni_base.go_abs(0,0,0)
-        self.gripper.command(1.2)
-
-        rospy.sleep(1)
-
-        # delete the bottle model
-        self.gazebo_delete_model("small_bottle")
+    def allignObject(self, object_tf, reference_tf, rot, tran):
+        if rot:
+            self.rotationAllign(object_tf, reference_tf)
         
-        # close the gripper and return to the starting position
-        self.gripper.command(0)
-        self.whole_body.move_to_go()
+        if tran:
+            self.axisAllign(object_tf)
 
     # method to handle the service request
     #TODO Return if the grasp was sucessful or not
     def graspSequence(self, req):
+        
         tf = self.getObjectTF(req.tf_frame, self.goal_frame)
         self.object_pose[0] = tf.transform.translation.x
         self.object_pose[1] = tf.transform.translation.y
         self.object_pose[2] = tf.transform.translation.z
 
         # maybe change from something else so robot does not need to move hand out then in
-        self.allignObject(req.tf_frame, 'hand_palm_link') 
+        self.allignObject(req.tf_frame, 'hand_palm_link', req.rotation, req.translation) 
+
         self.lookAtObject()
 
         tf = self.getObjectTF(req.tf_frame, self.goal_frame)
@@ -248,7 +233,6 @@ class GraspFromTFSrv():
         pat = self.generateGraspPattens()
         app, gra = self.generateGraspPoses(pat)
         self.performGraspPattern(app,gra)
-        self.resetSim()
         print("Done")
 
         return True
@@ -257,16 +241,13 @@ class GraspFromTFSrv():
 if __name__ == "__main__":
     # init node
     rospy.init_node("graspy")
-    # start physics in gazebo sim. Not needed for real world tests
-    rospy.wait_for_service("/gazebo/unpause_physics")
-    unpause_physics = rospy.ServiceProxy("/gazebo/unpause_physics", std_srvs.srv.Empty)
-    unpause_physics()
 
     # Prepare hsrb_interface and get ensure the robot is in position
     robot = hsrb_interface.Robot()
     wb = robot.get('whole_body')
     g = robot.get('gripper')
     ob = robot.get('omni_base')
+
     wb.move_to_go()
 
     # initialise the service call
