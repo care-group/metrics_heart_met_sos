@@ -20,25 +20,23 @@ from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 
 # constants and parameters
 ICRA_MAP = {
-    'view_reading_room' : (0.0, 0.0, 0.0),
-    'view_hall_room': (0.0, 0.0, 0.0),
-    'view_dining_room': (0.0, 0.0, 0.0),
-    'view_living_room': (0.0, 0.0, 0.0),
+    'view_reading_room' : (2.24, -1.94, 0.0),
+    'view_hall_room': (0.0, -3.14, 0.0),
+    'view_dining_room': (1.34, -4.04, 0.0),
+    'view_living_room': (2.38, -4.88, 0.0),
     'pick_reading_table' : (0.0, 0.0, 0.0),
     'pick_dining_table' : (0.0, 0.0, 0.0),
     'pick_hall_table' : (0.0, 0.0, 0.0),
     'pick_bookshelf' : (0.0, 0.0, 0.0),
 }
 
-class Main():
-    def __init__(self):
-        self.id = 'main'
+class MoveToPosition():
+    def __init__(self, body):
+        self.id = 'move_to_position'
         self.logger = Log(self.id)
         self.logger.startup_msg()
 
         # set up ROS
-        rospy.init_node('metrics_positions')
-
         self.ros_sub_move_to_room = rospy.Subscriber('/metrics_positions/request', String, callback=self.ros_callback_move_to_room)
         self.ros_ac_move_base = actionlib.SimpleActionClient('/move_base/move', MoveBaseAction)
         self.ros_ac_move_base.wait_for_server()
@@ -46,11 +44,8 @@ class Main():
         # set up classes
         # none
 
-        # set up HSR
-        self.robot = Robot()
-        self.body = self.robot.try_get('whole_body')
-
         # instance variables
+        self.body = body
         self.current_room = None
 
         # ready

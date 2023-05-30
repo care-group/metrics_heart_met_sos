@@ -9,6 +9,7 @@ from enum import Enum
 from log import Log
 from speak import Speak
 from object_to_tf import ObjectToTF
+from move_to_position import MoveToPosition
 
 # standard messages
 from std_msgs.msg import String
@@ -21,6 +22,7 @@ from ronsm_messages.msg import dm_intent
 MAX_USER_INPUT_RETRIES = 3
 MAX_USER_INPUT_WAIT = 30
 MAX_PERSON_SEARCH_TRIES = 6
+ICRA_POSITIONS = ['view_reading_room', 'view_hall_room', 'view_dining_room', 'view_living_room']
 
 class State(Enum):
     IDLE = 0
@@ -41,11 +43,8 @@ class Main():
 
         self.rps_sub_intent_bus = rospy.Subscriber('/metrics_rasa_core/intent_bus', dm_intent, callback=self.ros_callback_intent_bus)
         self.ros_sub_start_signal = rospy.Subscriber('/metrics_controller/start_signal', String, callback=self.ros_callback_start_signal)
-        self.ros_pub_service_listen_once = rospy.Publisher('/metrics_rasa/listen_once', String, queue_size=10)
 
-        # set up classes
-        self.speak = Speak()
-        self.object_to_transform = ObjectToTF()
+        self.ros_pub_service_listen_once = rospy.Publisher('/metrics_rasa/listen_once', String, queue_size=10)
 
         # set up HSR
         self.robot = Robot()
@@ -58,6 +57,11 @@ class Main():
             self.logger.log_warn('Unable to get one or more handles for HSR resources. Another process may be using them or the robot is in an error state.')
             self.speak.request('Controller failed to start, please check console.')
             exit(0)
+
+        # set up classes
+        self.speak = Speak()
+        self.object_to_transform = ObjectToTF()
+        self.move_to_position = MoveToPosition(self.body)
 
         # instance variables
         self.state = State.IDLE
@@ -107,13 +111,15 @@ class Main():
         tries = 0
         success = False
 
-        while (tries < MAX_PERSON_SEARCH_TRIES):
-            success = self.object_to_transform.check_for_object('person')
-            if success:
-                break
-            self.base.go_rel(yaw=1.0)
-            self.body.move_to_joint_positions({'head_tilt_joint': 0.0})
-            tries = tries + 1
+        for position in ICRA_POSITIONS:
+            self.move_to_position.request(position)
+            while (tries < MAX_PERSON_SEARCH_TRIES):
+                success = self.object_to_transform.check_for_object('person')
+                if success:
+                    break
+                self.base.go_rel(yaw=1.0)
+                self.body.move_to_joint_positions({'head_tilt_joint': 0.0})
+                tries = tries + 1
 
         if not success:
             self.state = State.FAIL
