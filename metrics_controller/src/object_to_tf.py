@@ -11,7 +11,7 @@ from log import Log
 
 # standard messages
 from geometry_msgs.msg import TransformStamped
-from std_msgs.msg import Int32
+from std_msgs.msg import Int32, String
 from sensor_msgs.msg import PointCloud2, Image
 from darknet_ros_msgs.msg import BoundingBoxes
 
@@ -32,6 +32,10 @@ class ObjectToTF():
         self.ros_sub_bounding_boxes = rospy.Subscriber('/darknet_ros/bounding_boxes', BoundingBoxes, self.ros_callback_bounding_boxes)
         self.ros_sub_rgbd = rospy.Subscriber('/hsrb/head_rgbd_sensor/depth_registered/rectified_points', PointCloud2, self.ros_callback_rgbd)
         self.ros_sub_rgbd_raw = rospy.Subscriber('/hsrb/head_rgbd_sensor/depth_registered/image_rect_raw', Image, self.ros_callback_rgbd_raw)
+        self.ros_sub_request = rospy.Subscriber('/metrics_controller/object_to_tf/request', String, callback=self.ros_callback_request)
+
+        self.ros_tf_buff = tf2_ros.Buffer()
+        self.ros_sub_tf = tf2_ros.TransformListener(self.ros_tf_buff)
 
         self.ros_pub_depth = rospy.Publisher('/metrics_controller/object_to_tf/depth_out', PointCloud2, queue_size=10)
         self.ros_pub_centre_depth = rospy.Publisher('/metrics_controller/object_to_tf/depth_centre_out', Int32, queue_size=10)
@@ -123,6 +127,14 @@ class ObjectToTF():
 
         self.ros_pub_tf.sendTransform(t)
 
+        try:
+            trans_object_to_map = self.ros_tf_buff.lookup_transform('map', 'object_of_interest', rospy.Time())
+            print(trans_object_to_map)
+        except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
+            self.logger.log_warn('Unable to get transform of object of interest to map.')
+
+        return trans_object_to_map
+
     # callbacks
 
     def ros_callback_bounding_boxes(self, msg):
@@ -135,3 +147,6 @@ class ObjectToTF():
     def ros_callback_rgbd_raw(self, msg):
         data = ros_numpy.numpify(msg)
         self.image = data
+
+    def ros_callback_request(self, msg):
+        self.object_to_tf(msg.data)

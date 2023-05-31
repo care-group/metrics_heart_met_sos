@@ -22,14 +22,27 @@ from ronsm_messages.msg import dm_intent
 MAX_USER_INPUT_RETRIES = 3
 MAX_USER_INPUT_WAIT = 15
 MAX_PERSON_SEARCH_TRIES = 6
-ICRA_POSITIONS = ['view_reading_room', 'view_hall_room', 'view_dining_room', 'view_living_room']
+ICRA_VIEW_POSITIONS = ['view_reading_room', 'view_hall_room', 'view_dining_room', 'view_living_room']
+ICRA_PICK_POSITIONS = {
+    'reading' : 'pick_reading_table',
+    'hall' : 'pick_hall_table',
+    'dining' : 'pick_dining_table',
+    'living' : 'pick_living_bookshelf'
+}
 
 class State(Enum):
     IDLE = 0
     APPROACH_WAIT = 1
     APPROACH_AUTO = 2
     OFFER_BRING = 3
+    GOTO_ITEM = 4
+    PICK_ITEM = 5
     FAIL = 99
+
+slots = {
+    'item' : None,
+    'location' : None
+}
 
 class Main():
     def __init__(self):
@@ -90,6 +103,10 @@ class Main():
             self.state_approach_auto()
         elif self.state == State.OFFER_BRING:
             self.state_offer_bring()
+        elif self.state == State.GOTO_ITEM:
+            self.state_goto_item()
+        elif self.state == State.PICK_ITEM:
+            self.state_pick_item()
         elif self.state == State.FAIL:
             self.state_fail()
 
@@ -111,8 +128,8 @@ class Main():
         tries = 0
         success = False
 
-        for position in ICRA_POSITIONS:
-            self.move_to_position.request(position)
+        for position in ICRA_VIEW_POSITIONS:
+            success = self.move_to_position.request(position)
             self.body.move_to_joint_positions({'head_tilt_joint': -0.45, 'head_pan_joint': 0.0})
             success = self.object_to_transform.check_for_object('person')
             if success:
@@ -129,6 +146,8 @@ class Main():
         # self.state = State.OFFER_BRING
 
     def state_offer_bring(self):
+        success = False
+
         self.intent = None
         self.speak.request('Sorry to interrupt, but I was wondering if there is anything I can bring you at the moment?')
         success = self.service_listen_and_wait('Sorry, I did not understand. Is there anything I can get you?', ['intent_accept', 'intent_item'])
@@ -160,6 +179,45 @@ class Main():
         say = 'Ok, I will fetch you the ' + item + ' from the ' + location + 'room .'
         self.speak.request(say)
         
+        global slots
+        slots['item'] = item
+        slots['location'] = location
+
+        self.state = State.GOTO_ITEM
+
+    def state_goto_item(self):
+        success = False
+
+        global slots
+        location = slots['location']
+
+        pick_location = None
+        try:
+            pick_location = ICRA_PICK_POSITIONS[location]
+        except KeyError:
+            self.logger.log_warn('Invalid location requested, no pick location in dictionary.')
+            self.state = State.FAIL
+
+        success = self.move_to_position.request(pick_location)
+
+        if not success:
+            self.state = State.FAIL
+            return
+
+        self.state = State.PICK_ITEM
+    
+    def state_pick_item(self):
+        success = False
+
+        global slots
+        item = slots['item']
+
+        # TODO: interact with picking class 
+
+        if not success:
+            self.state = State.FAIL
+            return
+
         self.state = State.IDLE
 
     def state_fail(self):
