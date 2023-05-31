@@ -20,7 +20,7 @@ from ronsm_messages.msg import dm_intent
 
 # constants and parameters
 MAX_USER_INPUT_RETRIES = 3
-MAX_USER_INPUT_WAIT = 30
+MAX_USER_INPUT_WAIT = 15
 MAX_PERSON_SEARCH_TRIES = 6
 ICRA_POSITIONS = ['view_reading_room', 'view_hall_room', 'view_dining_room', 'view_living_room']
 
@@ -113,13 +113,10 @@ class Main():
 
         for position in ICRA_POSITIONS:
             self.move_to_position.request(position)
-            while (tries < MAX_PERSON_SEARCH_TRIES):
-                success = self.object_to_transform.check_for_object('person')
-                if success:
-                    break
-                self.base.go_rel(yaw=1.0)
-                self.body.move_to_joint_positions({'head_tilt_joint': 0.0})
-                tries = tries + 1
+            self.body.move_to_joint_positions({'head_tilt_joint': -0.45, 'head_pan_joint': 0.0})
+            success = self.object_to_transform.check_for_object('person')
+            if success:
+                break
 
         if not success:
             self.state = State.FAIL
@@ -128,14 +125,21 @@ class Main():
         self.logger.log('Found a person.')
         self.speak.request('Oh, there you are!')
 
-        self.state = State.IDLE
+        self.state = State.OFFER_BRING
         # self.state = State.OFFER_BRING
 
     def state_offer_bring(self):
-        self.speak.request('Sorry to interrupt, but I was wondering if there is anything I can bring you at the moment?')
-        
         self.intent = None
-        success = self.service_listen_and_wait('Sorry, I did not understand. Is there anything I can get you?', ['intent_item'])
+        self.speak.request('Sorry to interrupt, but I was wondering if there is anything I can bring you at the moment?')
+        success = self.service_listen_and_wait('Sorry, I did not understand. Is there anything I can get you?', ['intent_accept', 'intent_item'])
+
+        # if not success:
+        #     self.state = State.FAIL
+        #     return
+
+        self.intent = None
+        self.speak.request('What can I bring you?')
+        success = self.service_listen_and_wait('Sorry, I did not understand. What item should I bring you?', ['intent_item'])
 
         if not success:
             self.state = State.FAIL
@@ -153,7 +157,7 @@ class Main():
             return
 
         location = self.intent.args[0]
-        say = 'Ok, I will fetch you the ' + item + ' from the ' + location + '.'
+        say = 'Ok, I will fetch you the ' + item + ' from the ' + location + 'room .'
         self.speak.request(say)
         
         self.state = State.IDLE

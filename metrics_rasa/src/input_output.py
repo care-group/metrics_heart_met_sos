@@ -117,24 +117,25 @@ class InputOutput(object):
             
     def listen_once(self):
         with sr.Microphone() as source:
-            self.logger.log('Adjusting for ambient noise...')
-
             path = self.rel_path + '/src/sounds/tone_beep.wav'
             playsound(path)
 
             self.logger.log('Listening...')
+            timed_out = False
             try:
-                audio = self.r.listen(source, timeout=1)
+                audio = self.r.listen(source, timeout=5, phrase_time_limit=10)
             except sr.WaitTimeoutError:
-                self.logger.log_warn('No audio detected.')
-            try:
-                # utterance = self.r.recognize_google_cloud(audio, language='en-GB')
-                utterance = self.r.recognize_whisper(audio, language='English', model='base')
-                log = 'Utterance:' + utterance
-                self.logger.log(log)
-                return utterance
-            except sr.UnknownValueError:
-                self.logger.log_warn('Could not understand audio.')
+                timed_out = True
+            if not timed_out:
+                if audio != None:
+                    try:
+                        utterance = self.r.recognize_google_cloud(audio, language='en-GB')
+                        # utterance = self.r.recognize_whisper(audio, language='English', model='base')
+                        log = 'Utterance:' + utterance
+                        self.logger.log(log)
+                        return utterance
+                    except sr.UnknownValueError:
+                        self.logger.log_warn('Could not understand audio.')
 
 if __name__ == '__main__':
     io = InputOutput()

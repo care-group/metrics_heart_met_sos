@@ -21,8 +21,8 @@ from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 # constants and parameters
 ICRA_MAP = {
     'view_reading_room' : (2.24, -1.94, 0.0),
-    'view_hall_room': (0.0, -3.14, 0.0),
-    'view_dining_room': (1.34, -4.04, 0.0),
+    'view_hall_room': (0.0, -3.14, 2.4),
+    'view_dining_room': (1.34, -4.04, 4.25),
     'view_living_room': (2.38, -4.88, 0.0),
     'pick_reading_table' : (0.0, 0.0, 0.0),
     'pick_dining_table' : (0.0, 0.0, 0.0),
@@ -34,7 +34,6 @@ class MoveToPosition():
     def __init__(self, body):
         self.id = 'move_to_position'
         self.logger = Log(self.id)
-        self.logger.startup_msg()
 
         # set up ROS
         self.ros_sub_move_to_room = rospy.Subscriber('/metrics_positions/request', String, callback=self.ros_callback_move_to_room)
@@ -57,7 +56,7 @@ class MoveToPosition():
         if room == self.current_room:
             return True
 
-        log = 'Attempting to move to:' + room
+        log = 'Attempting to move to: ' + room
         self.logger.log(log)
 
         self.body.move_to_go()

@@ -47,14 +47,6 @@ class Main():
         self.rospack = rospkg.RosPack()
         self.rel_path = self.rospack.get_path('metrics_speech')
 
-        # try:
-        #     self.device = usb.core.find(idVendor=0x2886, idProduct=0x0018)
-        # except:
-        #     self.logger.log_warn('Could not connect to microphone, ensure device is attached.')
-        #     sys.exit(0)
-
-        # self.mic = Tuning(self.device)
-
         self.r = sr.Recognizer()
         self.r.dynamic_energy_threshold = False
         self.r.energy_threshold = 2000
@@ -73,15 +65,6 @@ class Main():
         listen_thread.start()
 
         while not rospy.is_shutdown():
-            # direction = self.mic.direction
-
-            # log = 'Direction: ' + str(direction)
-            # self.logger.log(log)
-
-            # msg = Int32()
-            # msg.data = direction
-            # self.ros_pub_direction_raw.publish(direction)
-
             rospy.sleep(1)
 
     def listen_worker(self):
@@ -89,14 +72,8 @@ class Main():
         recognize_thread.daemon = True
         recognize_thread.start()
         with sr.Microphone() as source:
-            # self.logger.log('Adjusting for ambient noise...')
-            # self.r.adjust_for_ambient_noise(source, duration=5)
-            # self.logger.log('Adjusting for ambient noise... [OK]')
             try:
                 while True and not rospy.is_shutdown():
-                    # self.logger.log('Adjusting for ambient noise...')
-                    # self.r.adjust_for_ambient_noise(source)
-                    # self.logger.log('Adjusting for ambient noise... [OK]')
                     self.logger.log('Listening...')
                     timed_out = False
                     try:
@@ -124,10 +101,11 @@ class Main():
             if audio is None:
                 break
 
-            # utterance = self.r.recognize_whisper(audio, language='English', model='base')
             utterance = ''
             try:
-                utterance = self.r.recognize_google_cloud(audio, language='en-GB')
+                # utterance = self.r.recognize_google_cloud(audio, language='en-GB')
+                # utterance = self.r.recognize_whisper(audio, language='English', model='base')
+                pass
             except sr.UnknownValueError:
                 self.logger.log_warn('No results from Google Cloud STT.')
             log = 'Utterance:' + utterance

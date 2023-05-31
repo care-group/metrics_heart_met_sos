@@ -110,6 +110,8 @@ nlu:
     - chips
     - the crisps
     - crisps
+    - ring ghost
+    - gringos
 
 - synonym: t-shirt
   examples: |
@@ -174,58 +176,54 @@ nlu:
 
 - intent: intent_location
   examples: |
-    - [lounge](location)
-    - [bedroom](location)
-    - [kitchen](location)
-    - [bathroom](location)
-    - [table](location)
-    - [countertop](location)
-    - [chair](location)
+    - [living](location)
+    - [dining](location)
+    - [hall](location)
+    - [reading](location)
+    - its in the [living](location)
+    - its in the [dining](location)
+    - its in the [hall](location)
+    - its in the [reading](location)
+    - you can find it in the [living](location)
+    - you can find it in the [dining](location)
+    - you can find it in the [hall](location)
+    - you can find it in the [reading](location)
 
-- synonym: lounge
+- synonym: living
   examples: |
+    - lounge
     - living room
     - main room
     - lounge area
     - living area
     - front room
+    - bookshelf
+    - living room bookshelf
+    - shelf
+    - bookcase
+    - cabinet
 
-- synonym: bedroom
+- synonym: dining
   examples: |
-    - bedroom
-    - the bedroom
-    - the room
-    - room
-    - back room
+    - dining room
+    - dinner table
+    - dining table
+    - kitchen table
+    - diner
+    - dining room table
 
-- synonym: kitchen
+- synonym: hall
   examples: |
-    - kitchen
-    - the kitchen
+    - hall
+    - hallway
+    - entrance way
+    - hall table
+    - corridor
 
-- synonym: bathroom
+- synonym: reading
   examples: |
-    - bathroom
-    - the bathroom
-    - toilet
-    - the toilet
-    - washroom
-    - the washroom
-
-- synonym: table
-  examples: |
-    - table
-    - the table
-    - that table
-
-- synonym: countertop
-  examples: |
-    - countertop
-    - the countertop
-    - that countertop
-
-- synonym: chair
-  examples: |
-    - chair
-    - the chair
-    - that chair
+    - reading room
+    - coffee table
+    - reading
+    - reading table
+    - reading nook
