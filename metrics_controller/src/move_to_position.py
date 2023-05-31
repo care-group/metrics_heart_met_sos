@@ -24,10 +24,10 @@ ICRA_MAP = {
     'view_hall_room': (0.0, -3.14, 2.4),
     'view_dining_room': (1.34, -4.04, 4.25),
     'view_living_room': (2.38, -4.88, 0.0),
-    'pick_reading_table' : (0.0, 0.0, 0.0),
-    'pick_dining_table' : (0.0, 0.0, 0.0),
-    'pick_hall_table' : (0.0, 0.0, 0.0),
-    'pick_bookshelf' : (0.0, 0.0, 0.0),
+    'pick_reading_table' : (2.24, -1.94, 0.0),
+    'pick_hall_table' : (0.0, -3.14, 2.4),
+    'pick_dining_table' : (1.34, -4.04, 4.25),
+    'pick_living_bookshelf' : (0.0, 0.0, 0.0),
 }
 
 class MoveToPosition():
